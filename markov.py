@@ -67,33 +67,27 @@ def make_text(chains):
 
     words = []
 
-   
-
     random_key = choice(chains.keys())
-
-    while True:
-              
-        if random_key in chains:
-            words.append(random_key[0])
-            words.append(random_key[1])
-            random_value = choice(chains[random_key])
-            words.append(random_value)
-            next_key = (random_key[1], random_value)
-
-            random_key = next_key
-        else:
-            break
+    #random_key=('I', 'am?')
+    # print chains
+    # print "\n\nfirst random key is: ", (random_key)
 
     words.append(random_key[0])
     words.append(random_key[1])
 
+    while True:
+        if random_key in chains:
+            random_value = choice(chains[random_key])
+            words.append(random_value)
+            next_key = (random_key[1], random_value)
+            random_key = next_key
+        else:
+            break
+
 
     # print words
 
-
-
     return " ".join(words)
-
 
 input_path = "green-eggs.txt"
 
