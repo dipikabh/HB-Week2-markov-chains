@@ -4,7 +4,7 @@ from random import choice
 import sys
 
 
-def open_and_read_file(file_path):
+def open_and_read_file(file_path1, file_path2):
     """Take file path as string; return text as string.
 
     Takes a string that is a file path, opens the file, and turns
@@ -12,9 +12,11 @@ def open_and_read_file(file_path):
     """
 
     # your code goes here
-    file_object = open(file_path)
-    contents = file_object.read()
-    file_object.close()
+    file_object1 = open(file_path1)
+    file_object2 = open(file_path2)
+    contents = file_object1.read() + " " + file_object2.read()
+    file_object1.close()
+    file_object2.close()
 
     return contents
 
@@ -48,99 +50,67 @@ def make_chains(text_string, n):
 
     # your code goes here
     words = text_string.split()
+    words.append(None)
     
     for i in range(0, len(words)-n):
         t = tuple(words[i:n+i])
         chains[t] = chains.get(t, []) + [words[i+n]]
-       # bigram = (words[i], words[i+1])
-       # chains[bigram] = chains.get(bigram, []) + [words[i+2]]
-
-    #print chains
-
+       
     return chains
 
 
-def make_text(chains):
+
+
+def make_text(chains, uppercase=True, break_on_first_punctuation=False, character_limit=True):
     """Return text from chains."""
 
-    words = []
-
     random_key = choice(chains.keys())
-    #random_key=('I', 'am?')
-    # print "\n\nfirst random key is: ", (random_key)
-
-    #words.append(random_key[0])
-    #words.append(random_key[1])
-
-    words.extend(list(random_key))
-
-    while True:
-        if random_key in chains:
-            random_value = choice(chains[random_key])
-            words.append(random_value)
-            next_key = random_key[1:] + (random_value,)
-            random_key = next_key
-        else:
-            break
-
-    return " ".join(words)
-
-
-def make_text_first_uppercase(chains):
-
-    words = []
-
-# if first item of the tuple (key) is initial upper case, take that as the first 
-# entry in words. pick up a value randomly. add to words. check if it ends with 
-# punctuation. if yes, break, else loop.
-
-    random_key = choice(chains.keys())
-    
-
-    while True:
-        if random_key[0][0].isalpha() and random_key[0][0].isupper():
-            break
-        else:
-            random_key = choice(chains.keys())
-
-   
-    words.extend(list(random_key))
-
-
-    while True:
-        if random_key in chains:
-            random_value = choice(chains[random_key])
-            words.append(random_value)
-            if words[-1][-1] not in ["?", ".", ":"]:
-                next_key = random_key[1:] + (random_value,)
-                random_key = next_key
-            else:
+    if uppercase:
+        while True:
+            if random_key[0][0].isalpha() and random_key[0][0].isupper():
                 break
-        else:
-            break
-
-    return " ".join(words)
+            else:
+                random_key = choice(chains.keys())
 
 
+    words = list(random_key)
+    #words.extend(list(random_key))
 
-input_path = sys.argv[1]
+    while True:
+        random_value = choice(chains[random_key])
+        if random_value is None:
+            break       
+        words.append(random_value)
+        if break_on_first_punctuation:
+            if words[-1][-1] in ["?", ".", ":"]:
+                break         
+        next_key = random_key[1:] + (random_value,)
+        random_key = next_key
+
+    return_value =  " ".join(words)
+    
+    if character_limit:
+        return return_value[:280]
+    
+    return return_value
+
+
+
+
+
+
 
 # Open the file and turn it into one long string
-input_text = open_and_read_file(input_path)
+input_text = open_and_read_file(sys.argv[1], sys.argv[2])
 
-# print input_text
 
 # Get a Markov chain
-chains = make_chains(input_text, 2)
+chains = make_chains(input_text, 4)
 
-# Get a superformatted Markov chain
-random_text_upper_case = make_text_first_uppercase(chains)
 
 # Produce random text
 random_text = make_text(chains)
 
 
-
 # print random_text
-
-print random_text_upper_case
+print random_text
