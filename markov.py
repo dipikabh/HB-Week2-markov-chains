@@ -1,6 +1,7 @@
 """Generate Markov text from text files."""
 
 from random import choice
+import sys
 
 
 def open_and_read_file(file_path):
@@ -11,13 +12,14 @@ def open_and_read_file(file_path):
     """
 
     # your code goes here
-    contents = open(file_path).read()
-
+    file_object = open(file_path)
+    contents = file_object.read()
+    file_object.close()
 
     return contents
 
 
-def make_chains(text_string):
+def make_chains(text_string, n):
     """Take input text as string; return dictionary of Markov chains.
 
     A chain will be a key that consists of a tuple of (word1, word2)
@@ -47,15 +49,11 @@ def make_chains(text_string):
     # your code goes here
     words = text_string.split()
     
-    for i in range(0,len(words)-2):
-        bigram = (words[i], words[i+1])
-        chains[bigram] = chains.get(bigram, []) + [words[i+2]]
-        # if chains[bigram]:
-        #     chains[bigram].append(words[i+2])
-        # else:
-        #     chains[bigram] = [words[i+2]]
-
-
+    for i in range(0, len(words)-n):
+        t = tuple(words[i:n+i])
+        chains[t] = chains.get(t, []) + [words[i+n]]
+       # bigram = (words[i], words[i+1])
+       # chains[bigram] = chains.get(bigram, []) + [words[i+2]]
 
     # print chains
 
@@ -69,27 +67,26 @@ def make_text(chains):
 
     random_key = choice(chains.keys())
     #random_key=('I', 'am?')
-    # print chains
     # print "\n\nfirst random key is: ", (random_key)
 
-    words.append(random_key[0])
-    words.append(random_key[1])
+    #words.append(random_key[0])
+    #words.append(random_key[1])
+
+    words.extend(list(random_key))
 
     while True:
         if random_key in chains:
             random_value = choice(chains[random_key])
             words.append(random_value)
-            next_key = (random_key[1], random_value)
+            next_key = random_key[1:] + (random_value,)
             random_key = next_key
         else:
             break
 
-
-    # print words
-
     return " ".join(words)
 
-input_path = "green-eggs.txt"
+
+input_path = sys.argv[1]
 
 # Open the file and turn it into one long string
 input_text = open_and_read_file(input_path)
@@ -97,9 +94,10 @@ input_text = open_and_read_file(input_path)
 # print input_text
 
 # Get a Markov chain
-chains = make_chains(input_text)
+chains = make_chains(input_text, 4)
 
 # Produce random text
 random_text = make_text(chains)
 
 print random_text
+
