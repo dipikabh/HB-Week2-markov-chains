@@ -55,7 +55,7 @@ def make_chains(text_string, n):
        # bigram = (words[i], words[i+1])
        # chains[bigram] = chains.get(bigram, []) + [words[i+2]]
 
-    # print chains
+    #print chains
 
     return chains
 
@@ -86,6 +86,43 @@ def make_text(chains):
     return " ".join(words)
 
 
+def make_text_first_uppercase(chains):
+
+    words = []
+
+# if first item of the tuple (key) is initial upper case, take that as the first 
+# entry in words. pick up a value randomly. add to words. check if it ends with 
+# punctuation. if yes, break, else loop.
+
+    random_key = choice(chains.keys())
+    
+
+    while True:
+        if random_key[0][0].isalpha() and random_key[0][0].isupper():
+            break
+        else:
+            random_key = choice(chains.keys())
+
+   
+    words.extend(list(random_key))
+
+
+    while True:
+        if random_key in chains:
+            random_value = choice(chains[random_key])
+            words.append(random_value)
+            if words[-1][-1] not in ["?", ".", ":"]:
+                next_key = random_key[1:] + (random_value,)
+                random_key = next_key
+            else:
+                break
+        else:
+            break
+
+    return " ".join(words)
+
+
+
 input_path = sys.argv[1]
 
 # Open the file and turn it into one long string
@@ -94,10 +131,16 @@ input_text = open_and_read_file(input_path)
 # print input_text
 
 # Get a Markov chain
-chains = make_chains(input_text, 4)
+chains = make_chains(input_text, 2)
+
+# Get a superformatted Markov chain
+random_text_upper_case = make_text_first_uppercase(chains)
 
 # Produce random text
 random_text = make_text(chains)
 
-print random_text
 
+
+# print random_text
+
+print random_text_upper_case
